@@ -10,6 +10,7 @@ from signal_lab.data import (
     add_returns,
     classify_gaps,
     expiry_bar_mask,
+    find_expiry_bars,
     read_bars,
     sha256_of_file,
     trading_day,
@@ -105,7 +106,7 @@ def test_dst_spring_forward_keeps_new_york_wall_clock(tmp_path):
 def test_dst_weekend_gap_is_a_normal_weekend():
     # Friday 16:00 EST to Sunday 18:00 EDT is 49 hours, still a weekend gap.
     stamps = ["2025-03-07 16:00", "2025-03-09 18:00"]
-    gaps = classify_gaps(make_bars(stamps).index)
+    gaps = classify_gaps(make_bars(stamps).index, 60)
     assert gaps["kind"].tolist() == ["weekend"]
     assert gaps["hours"].tolist() == [49.0]
 
@@ -139,7 +140,7 @@ def test_expiry_bar_return_is_missing_whatever_its_size():
 
 
 def kind_of(prev_bar, next_bar):
-    return classify_gaps(make_bars([prev_bar, next_bar]).index)["kind"].tolist()
+    return classify_gaps(make_bars([prev_bar, next_bar]).index, 60)["kind"].tolist()
 
 
 def test_gap_kinds():
@@ -174,3 +175,13 @@ def test_read_bars_ignores_adj_close_and_orders_columns():
             "2025-01-06 09:00:00-05:00,7,1,3,0.5,2,9\n")
     bars = read_bars(io.StringIO(text), NY)
     assert bars.iloc[0].to_dict() == {"open": 2, "high": 3, "low": 0.5, "close": 1, "volume": 9}
+
+
+def test_expiry_holiday_fallback_uses_previous_trading_day():
+    # Third Friday of June 2026 is Juneteenth: no bars that day, so Thursday 16:00 is used.
+    stamps = ["2026-06-18 15:00", "2026-06-18 16:00", "2026-06-22 16:00"]
+    index = make_bars(stamps).index
+    found = find_expiry_bars(index, CFG["cleaning"])
+    assert found["used_fallback"].tolist() == [True]
+    assert str(found["bar"].iloc[0]) == "2026-06-18 16:00:00-04:00"
+    assert expiry_bar_mask(index, CFG["cleaning"]).tolist() == [False, True, False]

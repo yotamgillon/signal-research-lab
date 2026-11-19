@@ -3,10 +3,10 @@
 The file is a snapshot taken on 2026-11-19. Downloading again gives different data (Yahoo
 revises history and adds bars), so every result is tied to the sha256 in results/run_info.json.
 
-The exact arguments of the original download were not recorded. The arguments below are
-reconstructed from the columns of the file (Datetime, Adj Close, Close, High, Low, Open,
-Volume, which is what yfinance returns with auto_adjust=False) and from the date range.
-Treat them as documentation, not as proof.
+The original call was:
+    df = yf.download("NQ=F", period="730d", interval="1h", auto_adjust=False, progress=False)
+    df.columns = df.columns.get_level_values(0)
+    df.to_csv("data/NQ_1h.csv")
 
 The script refuses to overwrite an existing file, so the snapshot cannot be lost by accident.
 """
@@ -17,8 +17,8 @@ from pathlib import Path
 import yfinance as yf
 
 TICKER = "NQ=F"
+PERIOD = "730d"
 INTERVAL = "1h"
-START = "2024-06-30"
 
 
 def main():
@@ -28,8 +28,9 @@ def main():
     out = Path(args.out)
     if out.exists():
         raise SystemExit(f"{out} already exists, refusing to overwrite the snapshot")
-    bars = yf.download(TICKER, start=START, interval=INTERVAL, auto_adjust=False,
-                       multi_level_index=False)
+    bars = yf.download(TICKER, period=PERIOD, interval=INTERVAL, auto_adjust=False,
+                       progress=False)
+    bars.columns = bars.columns.get_level_values(0)  # drop the ticker level
     out.parent.mkdir(parents=True, exist_ok=True)
     bars.to_csv(out)
     print(f"wrote {len(bars)} rows to {out}")

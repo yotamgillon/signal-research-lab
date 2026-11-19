@@ -57,18 +57,41 @@ def validate(bars, max_gap_hours):
     return bars
 
 
-def expiry_bar_mask(index, cleaning):
-    """True for the 16:00 NY bar on the third Friday of the expiry months.
-
-    The third Friday is always day 15 to 21 of the month.
-    """
-    return np.asarray(
-        index.month.isin(cleaning["expiry_months"])
-        & (index.day_of_week == cleaning["expiry_weekday"])
-        & (index.day >= 15)
-        & (index.day <= 21)
-        & (index.hour == cleaning["expiry_bar_hour_ny"])
+def third_friday_dates(first_day, last_day, cleaning):
+    """Calendar third Fridays of the expiry months between two naive dates (day 15 to 21)."""
+    days = pd.date_range(first_day, last_day, freq="D")
+    is_expiry_day = (
+        days.month.isin(cleaning["expiry_months"])
+        & (days.day_of_week == cleaning["expiry_weekday"])
+        & (days.day >= 15)
+        & (days.day <= 21)
     )
+    return days[is_expiry_day]
+
+
+def find_expiry_bars(index, cleaning):
+    """One row per third Friday inside the data: the bar to treat as missing.
+
+    Normal case: the 16:00 NY bar of that Friday. If the Friday has no bars (a holiday), the
+    16:00 bar of the previous trading day is used. That fallback is an assumption, declared on
+    2026-11-20 before any performance result, and not a verified CME fact.
+    """
+    local_dates = index.normalize().tz_localize(None)
+    at_hour = index.hour == cleaning["expiry_bar_hour_ny"]
+    rows = []
+    for friday in third_friday_dates(local_dates[0], local_dates[-1], cleaning):
+        same_day = index[(local_dates == friday) & at_hour]
+        if len(same_day) > 0:
+            rows.append({"third_friday": friday, "bar": same_day[0], "used_fallback": False})
+            continue
+        earlier = index[(local_dates < friday) & at_hour]
+        rows.append({"third_friday": friday, "bar": earlier[-1], "used_fallback": True})
+    return pd.DataFrame(rows, columns=["third_friday", "bar", "used_fallback"])
+
+
+def expiry_bar_mask(index, cleaning):
+    """True for the expiry bars found by find_expiry_bars."""
+    return np.asarray(index.isin(find_expiry_bars(index, cleaning)["bar"]))
 
 
 def add_returns(bars, cleaning):
@@ -119,11 +142,11 @@ def gap_kind(prev_bar, next_bar, holidays):
     return "other"
 
 
-def classify_gaps(index):
+def classify_gaps(index, bar_minutes):
     """One row per gap longer than one bar, with its kind. The data report lists them."""
     holidays = holiday_dates(index)
     prev_bars, next_bars = index[:-1], index[1:]
-    long_gap = (next_bars - prev_bars) > pd.Timedelta(hours=1)
+    long_gap = (next_bars - prev_bars) > pd.Timedelta(minutes=bar_minutes)
     rows = [
         {"prev_bar": p, "next_bar": n, "hours": (n - p) / pd.Timedelta(hours=1),
          "kind": gap_kind(p, n, holidays)}
@@ -147,6 +170,9 @@ def zero_volume_summary(bars, data_cfg):
         "zero_volume_bars": int(zero.sum()),
         "zero_volume_and_open_eq_high_eq_low_eq_close": int((zero & flat).sum()),
         "zero_volume_in_overnight_session": int((zero & overnight).sum()),
+        "zero_volume_by_start_hour_ny": {
+            int(h): int(c) for h, c in bars.index[zero].hour.value_counts().sort_index().items()
+        },
         "overnight_definition": (
             "bar start hour (New York) outside "
             f"{data_cfg['regular_hours_first_start_hour']} to "
@@ -169,10 +195,29 @@ def expiry_bars_summary(raw_bars, bars):
             for t in flagged]
 
 
+def expiry_rule_note(index, cleaning):
+    """State the holiday fallback and which expiries used it, as an assumption."""
+    found = find_expiry_bars(index, cleaning)
+    used = found[found["used_fallback"]]
+    return {
+        "third_fridays_in_data": len(found),
+        "fallback_used_for": [
+            {"third_friday": str(r.third_friday.date()), "bar_used": str(r.bar)}
+            for r in used.itertuples()
+        ],
+        "note": (
+            "If a third Friday has no bars (holiday), the 16:00 New York bar of the previous "
+            "trading day is treated as the expiry bar. This is an assumption, not a verified "
+            "CME fact. It was declared on " + cleaning["fallback_declared_on"]
+            + ", before any performance result was computed."
+        ),
+    }
+
+
 def build_data_report(path, cfg, raw_bars, bars):
     """Bar-level data report. Sample-level counts are added by the labels module (item 1)."""
     data_cfg = cfg["data"]
-    gaps = classify_gaps(bars.index)
+    gaps = classify_gaps(bars.index, data_cfg["bar_minutes"])
     other = gaps[gaps["kind"] == "other"]
     return {
         "file": str(path),
@@ -194,6 +239,7 @@ def build_data_report(path, cfg, raw_bars, bars):
         ),
         "largest_single_bar_moves": largest_moves(bars, data_cfg["top_moves_to_report"]),
         "expiry_bars_set_to_missing": expiry_bars_summary(raw_bars, bars),
+        "expiry_rule": expiry_rule_note(bars.index, cfg["cleaning"]),
         "regular_hours_definition": (
             f"bar start hour {data_cfg['regular_hours_first_start_hour']} to "
             f"{data_cfg['regular_hours_last_start_hour']} inclusive, New York "

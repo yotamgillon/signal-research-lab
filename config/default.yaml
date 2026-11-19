@@ -8,7 +8,7 @@ data:
   timezone: America/New_York           # timezone of the bars
   session_timezone: America/Chicago    # CME session logic (daily break, trading day)
   session_start_hour_chicago: 17       # a CME trading day starts at 17:00 Chicago
-  bar_minutes: 60
+  bar_minutes: 60                      # one bar interval; longer steps between bars are gaps
   drop_latest_bar: true                # the newest bar was still forming at download time
   max_expected_gap_hours: 80           # longest normal break in the file is 3d 8h = 80h
   top_moves_to_report: 10
@@ -21,6 +21,11 @@ cleaning:                              # pre-declared expiry-bar rule (SPEC sect
   expiry_months: [3, 6, 9, 12]
   expiry_weekday: 4                    # Friday (Monday = 0); the third one is day 15 to 21
   expiry_bar_hour_ny: 16               # the return of this bar is treated as missing
+  # Holiday fallback: if the third Friday has no bars (June 2026, Juneteenth), the 16:00 bar of
+  # the previous trading day is used. ASSUMPTION, not a verified CME fact. Declared 2026-11-20,
+  # before any performance result was computed.
+  holiday_fallback: previous_trading_day
+  fallback_declared_on: "2026-11-20"
 
 horizon:
   main_bars: 1
@@ -42,6 +47,7 @@ splits:
   test_bars: 500                       # about 5 weeks per fold
   embargo_bars: 2                      # at least the largest horizon
   rolling_train_bars: 5000             # used only if scheme is rolling
+  keep_partial_last_block: false       # false: only full test blocks, leftover bars unused
 
 instrument:
   name: NQ
