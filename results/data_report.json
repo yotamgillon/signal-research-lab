@@ -1,0 +1,196 @@
+{
+  "file": "data/NQ_1h.csv",
+  "sha256": "53c87c8963307a28a2b51627ad8e1d31559a4524577db2eefa9a924ae842519b",
+  "rows_in_file": 13736,
+  "latest_bar_dropped": "2026-11-19 12:00:00-05:00",
+  "rows_used": 13735,
+  "first_bar": "2024-06-30 18:00:00-04:00",
+  "last_bar": "2026-11-19 11:00:00-05:00",
+  "gap_counts_by_kind": {
+    "daily_break": 468,
+    "weekend": 108,
+    "holiday": 23,
+    "other": 19
+  },
+  "longest_gap_hours": 80.0,
+  "gaps_kind_other": [
+    {
+      "prev_bar": "2024-07-02 23:00:00-04:00",
+      "next_bar": "2024-07-03 09:30:00-04:00",
+      "hours": 10.5
+    },
+    {
+      "prev_bar": "2024-07-12 17:00:00-04:00",
+      "next_bar": "2024-07-14 18:00:00-04:00",
+      "hours": 49.0
+    },
+    {
+      "prev_bar": "2024-09-20 09:00:00-04:00",
+      "next_bar": "2024-09-20 16:00:00-04:00",
+      "hours": 7.0
+    },
+    {
+      "prev_bar": "2024-11-29 12:30:00-05:00",
+      "next_bar": "2024-12-01 18:00:00-05:00",
+      "hours": 53.5
+    },
+    {
+      "prev_bar": "2024-12-20 09:00:00-05:00",
+      "next_bar": "2024-12-20 16:00:00-05:00",
+      "hours": 7.0
+    },
+    {
+      "prev_bar": "2024-12-23 23:00:00-05:00",
+      "next_bar": "2024-12-24 09:30:00-05:00",
+      "hours": 10.5
+    },
+    {
+      "prev_bar": "2025-01-09 09:00:00-05:00",
+      "next_bar": "2025-01-09 18:00:00-05:00",
+      "hours": 9.0
+    },
+    {
+      "prev_bar": "2025-03-21 09:00:00-04:00",
+      "next_bar": "2025-03-21 16:00:00-04:00",
+      "hours": 7.0
+    },
+    {
+      "prev_bar": "2025-06-20 09:00:00-04:00",
+      "next_bar": "2025-06-20 16:00:00-04:00",
+      "hours": 7.0
+    },
+    {
+      "prev_bar": "2025-07-02 23:00:00-04:00",
+      "next_bar": "2025-07-03 09:30:00-04:00",
+      "hours": 10.5
+    },
+    {
+      "prev_bar": "2025-07-11 16:00:00-04:00",
+      "next_bar": "2025-07-14 00:00:00-04:00",
+      "hours": 56.0
+    },
+    {
+      "prev_bar": "2025-09-19 16:00:00-04:00",
+      "next_bar": "2025-09-22 00:00:00-04:00",
+      "hours": 56.0
+    },
+    {
+      "prev_bar": "2025-10-03 16:00:00-04:00",
+      "next_bar": "2025-10-06 00:00:00-04:00",
+      "hours": 56.0
+    },
+    {
+      "prev_bar": "2025-11-28 12:30:00-05:00",
+      "next_bar": "2025-11-30 18:00:00-05:00",
+      "hours": 53.5
+    },
+    {
+      "prev_bar": "2025-12-23 23:00:00-05:00",
+      "next_bar": "2025-12-24 09:30:00-05:00",
+      "hours": 10.5
+    },
+    {
+      "prev_bar": "2026-04-20 02:00:00-04:00",
+      "next_bar": "2026-04-20 05:00:00-04:00",
+      "hours": 3.0
+    },
+    {
+      "prev_bar": "2026-05-01 16:00:00-04:00",
+      "next_bar": "2026-05-04 00:00:00-04:00",
+      "hours": 56.0
+    },
+    {
+      "prev_bar": "2026-09-25 17:00:00-04:00",
+      "next_bar": "2026-09-27 18:00:00-04:00",
+      "hours": 49.0
+    },
+    {
+      "prev_bar": "2026-10-30 17:00:00-04:00",
+      "next_bar": "2026-11-01 18:00:00-05:00",
+      "hours": 50.0
+    }
+  ],
+  "bars_not_starting_on_the_hour": 24,
+  "gap_kind_note": "holiday = US federal holidays plus Good Friday, an approximation of CME closures",
+  "largest_single_bar_moves": [
+    {
+      "timestamp": "2025-04-09 13:00:00-04:00",
+      "log_return_pct": 7.408
+    },
+    {
+      "timestamp": "2025-04-06 18:00:00-04:00",
+      "log_return_pct": -4.793
+    },
+    {
+      "timestamp": "2025-04-02 16:00:00-04:00",
+      "log_return_pct": -3.056
+    },
+    {
+      "timestamp": "2025-04-07 13:00:00-04:00",
+      "log_return_pct": 3.015
+    },
+    {
+      "timestamp": "2026-06-25 09:00:00-04:00",
+      "log_return_pct": -2.975
+    },
+    {
+      "timestamp": "2026-11-05 09:00:00-05:00",
+      "log_return_pct": -2.774
+    },
+    {
+      "timestamp": "2025-04-04 06:00:00-04:00",
+      "log_return_pct": -2.658
+    },
+    {
+      "timestamp": "2025-04-09 15:00:00-04:00",
+      "log_return_pct": 2.603
+    },
+    {
+      "timestamp": "2026-07-29 15:00:00-04:00",
+      "log_return_pct": -2.6
+    },
+    {
+      "timestamp": "2025-11-20 11:00:00-05:00",
+      "log_return_pct": -2.446
+    }
+  ],
+  "expiry_bars_set_to_missing": [
+    {
+      "timestamp": "2024-09-20 16:00:00-04:00",
+      "log_return_pct": 1.012
+    },
+    {
+      "timestamp": "2024-12-20 16:00:00-05:00",
+      "log_return_pct": 2.858
+    },
+    {
+      "timestamp": "2025-03-21 16:00:00-04:00",
+      "log_return_pct": 2.636
+    },
+    {
+      "timestamp": "2025-06-20 16:00:00-04:00",
+      "log_return_pct": 0.04
+    },
+    {
+      "timestamp": "2025-09-19 16:00:00-04:00",
+      "log_return_pct": 0.003
+    },
+    {
+      "timestamp": "2025-12-19 16:00:00-05:00",
+      "log_return_pct": 0.038
+    },
+    {
+      "timestamp": "2026-03-20 16:00:00-04:00",
+      "log_return_pct": -0.048
+    },
+    {
+      "timestamp": "2026-09-18 16:00:00-04:00",
+      "log_return_pct": 0.005
+    }
+  ],
+  "regular_hours_definition": "bar start hour 9 to 15 inclusive, New York (the 09:00 bar contains the 09:30 open)",
+  "zero_volume_bars": 493,
+  "zero_volume_and_open_eq_high_eq_low_eq_close": 3,
+  "zero_volume_in_overnight_session": 490,
+  "overnight_definition": "bar start hour (New York) outside 9 to 15 inclusive"
+}

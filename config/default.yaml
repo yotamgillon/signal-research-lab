@@ -1,0 +1,73 @@
+# Every parameter and every assumption lives here. Fixed before any result was seen.
+# A parameter that is not in this file must not appear in the code as a magic number.
+
+seed: 42
+
+data:
+  path: data/NQ_1h.csv                 # local snapshot, never re-downloaded by make run
+  timezone: America/New_York           # timezone of the bars
+  session_timezone: America/Chicago    # CME session logic (daily break, trading day)
+  session_start_hour_chicago: 17       # a CME trading day starts at 17:00 Chicago
+  bar_minutes: 60
+  drop_latest_bar: true                # the newest bar was still forming at download time
+  max_expected_gap_hours: 80           # longest normal break in the file is 3d 8h = 80h
+  top_moves_to_report: 10
+  # Regular hours by bar START hour in New York. Bars start at :00, so the 09:00 bar
+  # contains the 09:30 open and the 15:00 bar is the last one before the 16:00 close.
+  regular_hours_first_start_hour: 9
+  regular_hours_last_start_hour: 15
+
+cleaning:                              # pre-declared expiry-bar rule (SPEC section 3)
+  expiry_months: [3, 6, 9, 12]
+  expiry_weekday: 4                    # Friday (Monday = 0); the third one is day 15 to 21
+  expiry_bar_hour_ny: 16               # the return of this bar is treated as missing
+
+horizon:
+  main_bars: 1
+  secondary_bars: 2
+
+baseline:
+  momentum_lookback_bars: 24           # L, about one trading day, fixed and not tuned
+
+features:                              # declared now, used from item 4
+  return_lags: [1, 5, 20]
+  vol_window: 20
+  ma_window: 50
+  volume_z_window: 50
+  range_window: 20
+
+splits:
+  scheme: expanding                    # rolling is the other option
+  min_train_bars: 5000                 # about 10 months of 1h bars
+  test_bars: 500                       # about 5 weeks per fold
+  embargo_bars: 2                      # at least the largest horizon
+  rolling_train_bars: 5000             # used only if scheme is rolling
+
+instrument:
+  name: NQ
+  tick_size: 0.25                      # index points (fact)
+  tick_value_usd: 5.0                  # fact
+  multiplier_usd: 20.0                 # USD per index point (fact)
+
+# ASSUMPTIONS below, not facts. They are the researcher's choices, tested at 0x to 3x.
+costs:
+  commission_per_side_usd: 0.0         # the researcher's real broker number
+  slippage_ticks: 1.0                  # assumption: SPEC D4 starting value, per side
+  half_spread_ticks: 0.5               # assumption: NQ normally quotes 1 tick wide
+  roll_round_trip_sides: 2             # assumption: buy-and-hold roll closes old, opens new
+  cost_multipliers: [0, 1, 2, 3]
+  conservative_commission_per_side_usd: 2.50   # assumption: typical all-in retail rate, unverified
+
+metrics:
+  trading_days_per_year: 252
+  risk_free_rate: 0.0
+  bootstrap_paths: 2000
+  bootstrap_block_days: 5
+  ci_level: 0.95
+
+permutation:
+  n_permutations: 200
+  min_shift_bars: 50
+
+tests:
+  noise_seeds: [1, 2, 3, 4, 5]
