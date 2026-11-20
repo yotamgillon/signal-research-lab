@@ -8,7 +8,7 @@ Phase 1 only: a walk-forward framework with purge and embargo, a cost model, two
 
 ## Data
 
-`data/` is gitignored, so the data file is not in this repo. Place the Yahoo snapshot at `data/NQ_1h.csv` (columns `Datetime, Adj Close, Close, High, Low, Open, Volume`, hourly NQ=F bars downloaded on 2026-11-19, `scripts/download_data.py` documents the call). Do not re-download it to reproduce results: a new download gives different data. Every result is tied to the sha256 of the file recorded in `results/run_info.json` (this snapshot: `53c87c8963307a28a2b51627ad8e1d31559a4524577db2eefa9a924ae842519b`).
+`data/` is gitignored, so the data file is not in this repo. Place the Yahoo snapshot at `data/NQ_1h.csv` (columns `Datetime, Adj Close, Close, High, Low, Open, Volume`, hourly NQ=F bars downloaded on 2026-11-19, `scripts/download_data.py` documents the call). Do not re-download it to reproduce results: a new download gives different data. Every result is tied to the sha256 of the file recorded in `results/run_info.json` (this snapshot: `53c87c8963307a28a2b51627ad8e1d31559a4524577db2eefa9a924ae842519b`). `results/run_info.json` records the commit the results were generated at, so it is one commit behind by design.
 
 ## How to run
 
