@@ -5,3 +5,6 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+ignore = ["ISC004"]  # implicit string concatenation in lists is used for long report lines

@@ -43,3 +43,11 @@ Deviations from SPEC, declared on 2026-11-20 before any performance result: (a) 
 3. The truncation test cuts the data at many points and checks that every feature value before the cut is identical to the full-data value, which catches centred windows, negative shifts, back-fill and full-sample normalisation, and it caught a real calendar-lookahead bug in my own expiry-bar rule.
 4. The canary is a feature built from the next bar's return, and it is needed because a leakage test that passes everything is worthless: the truncation test must fail on it and a naive backtest of it must show an absurd Sharpe.
 5. The label-boundary and fit-on-train-only tests check, fold by fold, that no training label window reaches into the test block and that the model never saw a bar at or after the start of its test block.
+
+## Item 5: findings write-up, summary and figures
+
+1. The pipeline writes results/summary.md and inserts the results table into docs/FINDINGS.md by script, and a test fails if the prose quotes any number that is not in the summary, so I cannot retype a result wrongly.
+2. The first line of Results says that no evidence of an edge was found, because every Sharpe interval includes zero and the permutation p-values are 0.766 and 0.682, and a null result stated plainly is the honest outcome.
+3. The passive buy-and-hold earns much more than the tradable one because it also collects the first hour after each weekend and daily break and the moves between bars, which no signal computed before the gap could trade, so the tradable line is the fair comparison.
+4. The write-up says the window is only 1.6 years, that the costs and the June 2026 expiry fallback are assumptions, that the Yahoo roll handling is unverified, and that April 2025 sits in training only, so a reader knows what the result can and cannot support.
+5. The figures use real data only, label the costs as assumptions in their titles, and show the equity curves, the drawdowns and the permutation histogram with the real Sharpe marked against the shifted-signal null.

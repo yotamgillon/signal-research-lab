@@ -16,14 +16,28 @@ from signal_lab.config import load_config
 from signal_lab.costs import cost_per_side_usd
 from signal_lab.data import add_returns, run_data_step, sha256_of_file
 from signal_lab.features import build_features
-from signal_lab.labels import add_sample_section, build_labels, sample_report
+from signal_lab.labels import add_sample_section, build_labels, sample_report, step_gap_kinds
 from signal_lab.leakage import (
     canary_feature,
     label_boundary_violations,
     ordering_violations,
     truncation_violations,
 )
-from signal_lab.report import comparison_markdown, evaluate, to_frame
+from signal_lab.report import (
+    build_summary,
+    comparison_markdown,
+    drawdown_figure,
+    equity_figure,
+    evaluate,
+    headline_series,
+    insert_results_table,
+    main_table,
+    numbers_missing_from_summary,
+    passive_vs_tradable,
+    permutation_figure,
+    to_frame,
+    word_count,
+)
 from signal_lab.splits import check_embargo, fold_table, oos_window, walk_forward_splits
 from signal_lab.stats_tests import circular_shift_test, net_sharpe_statistic
 from signal_lab.trials import TrialLog
@@ -120,7 +134,39 @@ def momentum_permutation_tests(bars, cfg, window, labels_by_horizon, trials, sha
             permutations=result["n_permutations"], p_value=result["p_value"])
     (RESULTS / "permutation_momentum.json").write_text(json.dumps(results, indent=2) + "\n")
     pd.DataFrame(permuted_by_horizon).to_csv(RESULTS / "permutation_momentum_sharpes.csv", index=False)
-    return results
+    return results, permuted_by_horizon
+
+
+def write_report_outputs(bars, cfg, window, sims, rows, differences, permutation, permuted,
+                         checks, folds, trials):
+    """Figures, summary.md, and the results table inside docs/FINDINGS.md."""
+    index = bars.index[window[0] : window[1]]
+    per_side = cost_per_side_usd(cfg["costs"], cfg["instrument"])
+    figures = RESULTS / "figures"
+    figures.mkdir(exist_ok=True)
+    series = headline_series(sims, per_side, index, cfg)
+    equity_figure(figures / "equity_net.png", series, per_side)
+    drawdown_figure(figures / "drawdown_net.png", series, per_side)
+    permutation_figure(figures / "permutation_momentum.png", permutation, permuted, per_side)
+
+    gap_kinds = step_gap_kinds(bars.index, cfg["data"]["bar_minutes"])
+    decomposition = passive_vs_tradable(bars, window, gap_kinds, sims, cfg)
+    data_report = json.loads((RESULTS / "data_report.json").read_text())
+    summary = build_summary(data_report, folds, index, cfg, rows, differences, permutation,
+                            checks, decomposition, len(trials))
+    (RESULTS / "summary.md").write_text(summary)
+
+    findings_path = ROOT / "docs" / "FINDINGS.md"
+    if findings_path.exists():
+        caption = (f"Main run, commission 0.00 USD per side, {per_side:.2f} USD per side in total "
+                   "(ASSUMPTIONS). Out-of-sample, net and gross, 95 percent block-bootstrap intervals.")
+        table = [caption, ""] + main_table(rows, "main")
+        text = insert_results_table(findings_path.read_text(), table)
+        findings_path.write_text(text)
+        missing = numbers_missing_from_summary(text, summary)
+        print("FINDINGS words:", word_count(text), "| numbers not in summary.md:", missing)
+        if missing:
+            raise SystemExit("docs/FINDINGS.md quotes numbers that are not in results/summary.md")
 
 
 def main():
@@ -161,7 +207,8 @@ def main():
     print((RESULTS / "comparison.md").read_text())
 
     sha = sha256_of_file(cfg["data"]["path"])
-    permutation = momentum_permutation_tests(bars, cfg, window, labels_by_horizon, trials, sha)
+    permutation, permuted = momentum_permutation_tests(
+        bars, cfg, window, labels_by_horizon, trials, sha)
     print(json.dumps(permutation, indent=2))
     trials.write(RESULTS / "trials.csv")
     print("trials logged:", len(trials))
@@ -169,6 +216,9 @@ def main():
     checks = leakage_checks(bars, label_ends, cfg)
     (RESULTS / "leakage_check.json").write_text(json.dumps(checks, indent=2) + "\n")
     print(json.dumps(checks, indent=2))
+
+    write_report_outputs(bars, cfg, window, sims, rows, differences, permutation, permuted,
+                         checks, folds, trials)
 
 
 if __name__ == "__main__":
