@@ -3,7 +3,7 @@
     "volume_z is dropped from the Phase 1 feature set (SPEC section 2 lists it). 471 of 493 zero-volume bars are the 18:00 New York bar, so a rolling volume z-score would be distorted. Volume handling is decided in Phase 2 with a documented rule. Declared 2026-11-20.",
     "keep_partial_last_block is true, so the last test block is shorter than test_bars (SPEC says fixed-length blocks). This uses the last bars of the file. Declared 2026-11-20."
   ],
-  "file": "data/NQ_1h.csv",
+  "file": "NQ_1h.csv",
   "sha256": "53c87c8963307a28a2b51627ad8e1d31559a4524577db2eefa9a924ae842519b",
   "rows_in_file": 13736,
   "latest_bar_dropped": "2026-11-19 12:00:00-05:00",

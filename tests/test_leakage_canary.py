@@ -12,7 +12,7 @@ from signal_lab.data import add_returns
 from signal_lab.features import build_features
 from signal_lab.leakage import canary_feature, truncation_violations
 from signal_lab.stats_tests import net_sharpe_statistic
-from synthetic import make_raw_bars
+from signal_lab.synthetic import make_raw_bars
 
 CFG = load_config()
 RAW = make_raw_bars()

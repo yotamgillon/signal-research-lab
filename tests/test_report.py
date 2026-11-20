@@ -18,7 +18,7 @@ from signal_lab.report import (
     permutation_figure,
     word_count,
 )
-from synthetic import make_raw_bars
+from signal_lab.synthetic import make_raw_bars
 
 CFG = load_config()
 

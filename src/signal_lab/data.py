@@ -231,7 +231,7 @@ def build_data_report(path, cfg, raw_bars, bars):
     other = gaps[gaps["kind"] == "other"]
     return {
         "deviations_from_spec": [" ".join(text.split()) for text in cfg["deviations_from_spec"]],
-        "file": str(path),
+        "file": Path(path).name,
         "sha256": sha256_of_file(path),
         "rows_in_file": len(raw_bars),
         "latest_bar_dropped": str(raw_bars.index[-1]) if data_cfg["drop_latest_bar"] else None,

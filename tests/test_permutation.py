@@ -12,7 +12,7 @@ from signal_lab.stats_tests import (
     net_sharpe_statistic,
     summarize,
 )
-from synthetic import make_raw_bars
+from signal_lab.synthetic import make_raw_bars
 
 CFG = load_config()
 SEEDS = CFG["tests"]["noise_seeds"]

@@ -134,9 +134,9 @@ def multiplier_table(rows, run, cfg):
     return lines
 
 
-def comparison_markdown(rows, differences, index, cfg):
+def comparison_markdown(rows, differences, index, cfg, banner=""):
     """One block per commission run. Net and gross are always shown together."""
-    lines = [header_text(rows, index, cfg)]
+    lines = ([banner.strip() + " NOT A RESULT.", ""] if banner else []) + [header_text(rows, index, cfg)]
     for run, commission in commission_runs(cfg).items():
         per_side = cost_per_side_usd(cfg["costs"], cfg["instrument"], commission)
         title = (f"### Run: {run} (commission {commission:.2f} USD per side, "
@@ -270,23 +270,23 @@ def _line_chart(path, series, transform, title, ylabel):
     plt.close(fig)
 
 
-def equity_figure(path, series, per_side_usd):
-    title = (f"Net equity, one NQ contract, out-of-sample. Costs are ASSUMPTIONS: "
+def equity_figure(path, series, per_side_usd, banner=""):
+    title = (f"{banner}Net equity, one NQ contract, out-of-sample. Costs are ASSUMPTIONS: "
              f"{per_side_usd:.2f} USD per side")
     _line_chart(path, series, np.cumsum, title, "Cumulative net P&L (USD)")
 
 
-def drawdown_figure(path, series, per_side_usd):
+def drawdown_figure(path, series, per_side_usd, banner=""):
     def drawdown(values):
         equity = np.concatenate([[0.0], np.cumsum(values)])
         return (equity - np.maximum.accumulate(equity))[1:]
 
-    title = (f"Drawdown from peak, one NQ contract, out-of-sample. Costs are ASSUMPTIONS: "
+    title = (f"{banner}Drawdown from peak, one NQ contract, out-of-sample. Costs are ASSUMPTIONS: "
              f"{per_side_usd:.2f} USD per side")
     _line_chart(path, series, drawdown, title, "Net drawdown from peak (USD)")
 
 
-def permutation_figure(path, results, permuted, per_side_usd):
+def permutation_figure(path, results, permuted, per_side_usd, banner=""):
     horizons = list(results)
     plt, fig, axes = _new_figure(1, len(horizons), figsize=(10, 4.2), sharey=True, squeeze=False)
     axes = axes[0]
@@ -301,7 +301,7 @@ def permutation_figure(path, results, permuted, per_side_usd):
                      fontsize=10, loc="left")
         ax.set_xlabel("Net Sharpe of the shifted signal (annualised)")
     axes[0].set_ylabel("Number of permutations")
-    fig.suptitle(f"Permutation null of net Sharpe. Costs are ASSUMPTIONS: {per_side_usd:.2f} USD "
+    fig.suptitle(f"{banner}Permutation null of net Sharpe. Costs are ASSUMPTIONS: {per_side_usd:.2f} USD "
                  "per side", color=INK, fontsize=11, x=0.01, ha="left")
     fig.tight_layout()
     fig.savefig(path, dpi=120, facecolor=SURFACE, metadata={"Software": None})
@@ -314,6 +314,21 @@ def permutation_figure(path, results, permuted, per_side_usd):
 
 def _money(value):
     return f"{value:,.0f}"
+
+
+def before_text(before, top):
+    if not before:
+        return f"- None of the {len(top)} largest single-bar moves falls before the first test block."
+    return (f"- {len(before)} of the {len(top)} largest single-bar moves fall before the first test "
+            f"block, between {min(before)} and {max(before)} (April 2025 tariff period): they are in "
+            "training only.")
+
+
+def fallback_text(expiry_rule):
+    used = expiry_rule["fallback_used_for"]
+    if not used:
+        return "no holiday fallback was needed."
+    return f"holiday fallback used for {used[0]['third_friday']} (an assumption, declared 2026-11-20)."
 
 
 def facts_section(data_report, folds, index, cfg, rows, trials_count):
@@ -337,20 +352,17 @@ def facts_section(data_report, folds, index, cfg, rows, trials_count):
         f"{str(index[0])[:10]}.",
         "- Expiry rule (pre-declared): the return of the 16:00 New York bar on the third Friday of "
         "March, June, September and December is treated as missing.",
-        f"- {len(before)} of the {len(top)} largest single-bar moves fall before the first test "
-        f"block, between {min(before)} and {max(before)} (April 2025 tariff period): they are in "
-        "training only.",
+        before_text(before, top),
         f"- Cost per side per contract (ASSUMPTIONS): main {per_side:.2f} USD "
         f"(commission {cfg['costs']['commission_per_side_usd']:.2f}, slippage "
         f"{cfg['costs']['slippage_ticks']:.1f} tick, half-spread {cfg['costs']['half_spread_ticks']:.1f} "
         f"tick, {cfg['instrument']['tick_value_usd']:.0f} USD per tick); conservative "
         f"{conservative:.2f} USD.",
         f"- Zero-volume bars {data_report['zero_volume_bars']}, of which "
-        f"{data_report['zero_volume_by_start_hour_ny']['18']} are the 18:00 New York bar.",
+        f"{data_report['zero_volume_by_start_hour_ny'].get('18', 0)} are the 18:00 New York bar.",
         f"- Bars not starting on the hour {data_report['bars_not_starting_on_the_hour']}.",
         f"- Expiry bars set to missing {len(data_report['expiry_bars_set_to_missing'])}; "
-        f"holiday fallback used for {data_report['expiry_rule']['fallback_used_for'][0]['third_friday']} "
-        "(an assumption, declared 2026-11-20).",
+        f"{fallback_text(data_report['expiry_rule'])}",
         f"- Valid samples after label rules: H=1 {samples['H=1']['samples_valid_after_label_rules']:,}, "
         f"H=2 {samples['H=2']['samples_valid_after_label_rules']:,}; gap rule removes "
         f"{samples['H=1']['removed_by_gap_rule']:,} (H=1) and {samples['H=2']['removed_by_gap_rule']:,} (H=2).",
@@ -401,8 +413,9 @@ def leakage_section(checks):
 
 
 def build_summary(data_report, folds, index, cfg, rows, differences, permutation, checks,
-                  decomposition, trials_count):
-    head = ["# Summary of results", "",
+                  decomposition, trials_count, banner=""):
+    title = "# Summary of results" if not banner else f"# {banner.strip()} NOT A RESULT: summary"
+    head = [title, "",
             "Generated by scripts/run_all.py. Do not edit by hand. Every number in "
             "docs/FINDINGS.md must appear here.", ""]
     tables = ["", "## Comparison", "", comparison_markdown(rows, differences, index, cfg).rstrip()]

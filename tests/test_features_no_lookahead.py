@@ -6,7 +6,7 @@ from signal_lab.config import load_config
 from signal_lab.data import add_returns
 from signal_lab.features import build_features, feature_columns
 from signal_lab.leakage import truncation_violations
-from synthetic import make_raw_bars
+from signal_lab.synthetic import make_raw_bars
 
 CFG = load_config()
 RAW = make_raw_bars()

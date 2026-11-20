@@ -92,3 +92,13 @@ permutation:
 tests:
   noise_seeds: [1, 2, 3, 4, 5]
   truncation_cut_points: 20            # random cut points of the truncation test
+
+# Settings of `make smoke` only: the whole pipeline on SYNTHETIC bars. Never used for results.
+smoke:
+  synthetic_bars: 3000                 # hours of synthetic random-walk bars
+  synthetic_seed: 7
+  overrides:
+    splits: {min_train_bars: 600, test_bars: 200, embargo_bars: 2, rolling_train_bars: 600}
+    metrics: {bootstrap_paths: 100}
+    permutation: {n_permutations: 20, min_shift_bars: 20}
+    tests: {truncation_cut_points: 5}

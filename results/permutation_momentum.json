@@ -1,28 +1,28 @@
 {
   "H=1": {
+    "mean_signal_exposure": 0.07670818298219066,
     "method": "circular shift of the signal",
-    "real_net_sharpe": -0.6660574898862822,
+    "minimum_possible_p_value": 0.004975124378109453,
     "n_permutations": 200,
     "p_value": 0.7661691542288557,
-    "minimum_possible_p_value": 0.004975124378109453,
+    "permuted_5th_percentile": -1.2382171635726493,
+    "permuted_95th_percentile": 1.2917636129701655,
     "permuted_at_least_as_large": 153,
     "permuted_mean": -0.07501762765336592,
     "permuted_std": 0.7985009324531946,
-    "permuted_5th_percentile": -1.2382171635726493,
-    "permuted_95th_percentile": 1.2917636129701655,
-    "mean_signal_exposure": 0.07670818298219066
+    "real_net_sharpe": -0.6660574898862822
   },
   "H=2": {
+    "mean_signal_exposure": 0.07670818298219066,
     "method": "circular shift of the signal",
-    "real_net_sharpe": -0.4037331920727024,
+    "minimum_possible_p_value": 0.004975124378109453,
     "n_permutations": 200,
     "p_value": 0.681592039800995,
-    "minimum_possible_p_value": 0.004975124378109453,
+    "permuted_5th_percentile": -1.325492459126216,
+    "permuted_95th_percentile": 1.4488280328434366,
     "permuted_at_least_as_large": 136,
     "permuted_mean": 0.021383326600471264,
     "permuted_std": 0.8280921502360341,
-    "permuted_5th_percentile": -1.325492459126216,
-    "permuted_95th_percentile": 1.4488280328434366,
-    "mean_signal_exposure": 0.07670818298219066
+    "real_net_sharpe": -0.4037331920727024
   }
 }

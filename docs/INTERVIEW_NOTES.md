@@ -51,3 +51,11 @@ Deviations from SPEC, declared on 2026-11-20 before any performance result: (a) 
 3. The passive buy-and-hold earns much more than the tradable one because it also collects the first hour after each weekend and daily break and the moves between bars, which no signal computed before the gap could trade, so the tradable line is the fair comparison.
 4. The write-up says the window is only 1.6 years, that the costs and the June 2026 expiry fallback are assumptions, that the Yahoo roll handling is unverified, and that April 2025 sits in training only, so a reader knows what the result can and cannot support.
 5. The figures use real data only, label the costs as assumptions in their titles, and show the equity curves, the drawdowns and the permutation histogram with the real Sharpe marked against the shifted-signal null.
+
+## Item 6: make run, pytest and CI
+
+1. One command, `make run`, reads the config and the local data file, uses the single seed from the config, and writes every table, figure, summary and `run_info.json`, so every number in the write-up traces to a file produced by that command.
+2. `run_info.json` records the git commit, the pinned and installed package versions, the sha256 of the data file and the config, which ties a result to one data snapshot and one code version.
+3. `make reproduce-check` runs the pipeline twice and compares the sha256 of every result file, which shows that the same seed and the same data give identical outputs on this machine.
+4. `make smoke` runs the same code on synthetic random-walk bars and writes only files whose names start with SYNTHETIC, so the pipeline can be tested in CI without the private data and a synthetic number can never be mistaken for a result.
+5. CI runs ruff, pytest and the synthetic smoke run on Python 3.13, but it cannot run on the real data because the data is private, so it proves the code runs and the tests pass and does not prove that the real results reproduce.

@@ -1,11 +1,11 @@
 {
+  "bars": 8735,
+  "correctly_lagged_gross_usd": 56950.0,
   "diagnostic_only": "planted perfect-foresight signal on real out-of-sample bars",
+  "lagged_as_share_of_peek": 0.007890314240943457,
+  "same_bar_peek_gross_usd": 7217710.0,
   "window": [
     "2025-05-15 15:00:00-04:00",
     "2026-11-19 11:00:00-05:00"
-  ],
-  "bars": 8735,
-  "same_bar_peek_gross_usd": 7217710.0,
-  "correctly_lagged_gross_usd": 56950.0,
-  "lagged_as_share_of_peek": 0.007890314240943457
+  ]
 }

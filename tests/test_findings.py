@@ -34,3 +34,10 @@ def test_required_statements_are_present():
     for phrase in ["unofficial", "assumption", "volume z-score", "april 2025",
                    "2026-06-19", "like-for-like", "nothing broader", "did not do in phase 1"]:
         assert phrase in text, phrase
+
+
+def test_readme_headline_numbers_are_in_the_summary():
+    readme = (ROOT / "README.md").read_text()
+    headline = readme.split("## Scope")[0]
+    assert headline.splitlines()[2].startswith("**No evidence of an edge was found.**")
+    assert numbers_missing_from_summary(headline, SUMMARY) == []

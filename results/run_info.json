@@ -1,0 +1,277 @@
+{
+  "config": {
+    "baseline": {
+      "momentum_lookback_bars": 24
+    },
+    "cleaning": {
+      "calendar_lookahead_days": 7,
+      "expiry_bar_hour_ny": 16,
+      "expiry_months": [
+        3,
+        6,
+        9,
+        12
+      ],
+      "expiry_weekday": 4,
+      "fallback_declared_on": "2026-11-20",
+      "holiday_fallback": "previous_trading_day"
+    },
+    "costs": {
+      "commission_per_side_usd": 0.0,
+      "conservative_commission_per_side_usd": 2.5,
+      "cost_multipliers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "half_spread_ticks": 0.5,
+      "roll_round_trip_sides": 2,
+      "slippage_ticks": 1.0
+    },
+    "data": {
+      "bar_minutes": 60,
+      "drop_latest_bar": true,
+      "max_expected_gap_hours": 80,
+      "path": "data/NQ_1h.csv",
+      "regular_hours_first_start_hour": 9,
+      "regular_hours_last_start_hour": 15,
+      "session_start_hour_chicago": 17,
+      "session_timezone": "America/Chicago",
+      "timezone": "America/New_York",
+      "top_moves_to_report": 10
+    },
+    "deviations_from_spec": [
+      "volume_z is dropped from the Phase 1 feature set (SPEC section 2 lists it). 471 of 493 zero-volume bars are the 18:00 New York bar, so a rolling volume z-score would be distorted. Volume handling is decided in Phase 2 with a documented rule. Declared 2026-11-20.",
+      "keep_partial_last_block is true, so the last test block is shorter than test_bars (SPEC says fixed-length blocks). This uses the last bars of the file. Declared 2026-11-20."
+    ],
+    "features": {
+      "ma_window": 50,
+      "range_window": 20,
+      "return_lags": [
+        1,
+        5,
+        20
+      ],
+      "vol_window": 20
+    },
+    "horizon": {
+      "main_bars": 1,
+      "secondary_bars": 2
+    },
+    "instrument": {
+      "multiplier_usd": 20.0,
+      "name": "NQ",
+      "tick_size": 0.25,
+      "tick_value_usd": 5.0
+    },
+    "metrics": {
+      "bootstrap_block_days": 5,
+      "bootstrap_paths": 2000,
+      "ci_level": 0.95,
+      "risk_free_rate": 0.0,
+      "trading_days_per_year": 252
+    },
+    "permutation": {
+      "min_shift_bars": 50,
+      "n_permutations": 200
+    },
+    "seed": 42,
+    "smoke": {
+      "overrides": {
+        "metrics": {
+          "bootstrap_paths": 100
+        },
+        "permutation": {
+          "min_shift_bars": 20,
+          "n_permutations": 20
+        },
+        "splits": {
+          "embargo_bars": 2,
+          "min_train_bars": 600,
+          "rolling_train_bars": 600,
+          "test_bars": 200
+        },
+        "tests": {
+          "truncation_cut_points": 5
+        }
+      },
+      "synthetic_bars": 3000,
+      "synthetic_seed": 7
+    },
+    "splits": {
+      "embargo_bars": 2,
+      "keep_partial_last_block": true,
+      "min_train_bars": 5000,
+      "rolling_train_bars": 5000,
+      "scheme": "expanding",
+      "test_bars": 500
+    },
+    "tests": {
+      "noise_seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "truncation_cut_points": 20
+    }
+  },
+  "data_files": {
+    "NQ_1h.csv": "53c87c8963307a28a2b51627ad8e1d31559a4524577db2eefa9a924ae842519b"
+  },
+  "git_commit": "d5608b3dd6d12eaaf4f35eefe80beee320e1a4b2",
+  "packages": {
+    "PyYAML": {
+      "installed": "6.0.3",
+      "pinned": "6.0.3"
+    },
+    "Pygments": {
+      "installed": "2.21.0",
+      "pinned": "2.21.0"
+    },
+    "beautifulsoup4": {
+      "installed": "4.15.0",
+      "pinned": "4.15.0"
+    },
+    "certifi": {
+      "installed": "2026.10.23",
+      "pinned": "2026.10.23"
+    },
+    "cffi": {
+      "installed": "2.1.1",
+      "pinned": "2.1.1"
+    },
+    "charset-normalizer": {
+      "installed": "3.5.2",
+      "pinned": "3.5.2"
+    },
+    "contourpy": {
+      "installed": "1.4.0",
+      "pinned": "1.4.0"
+    },
+    "curl_cffi": {
+      "installed": "0.17.0",
+      "pinned": "0.17.0"
+    },
+    "cycler": {
+      "installed": "0.12.1",
+      "pinned": "0.12.1"
+    },
+    "fonttools": {
+      "installed": "4.68.0",
+      "pinned": "4.68.0"
+    },
+    "idna": {
+      "installed": "3.20",
+      "pinned": "3.20"
+    },
+    "iniconfig": {
+      "installed": "2.3.1",
+      "pinned": "2.3.1"
+    },
+    "kiwisolver": {
+      "installed": "1.5.1",
+      "pinned": "1.5.1"
+    },
+    "lxml": {
+      "installed": "6.1.3",
+      "pinned": "6.1.3"
+    },
+    "matplotlib": {
+      "installed": "3.11.2",
+      "pinned": "3.11.2"
+    },
+    "numpy": {
+      "installed": "2.5.5",
+      "pinned": "2.5.5"
+    },
+    "packaging": {
+      "installed": "26.3",
+      "pinned": "26.3"
+    },
+    "pandas": {
+      "installed": "3.1.1",
+      "pinned": "3.1.1"
+    },
+    "peewee": {
+      "installed": "4.5.3",
+      "pinned": "4.5.3"
+    },
+    "pillow": {
+      "installed": "13.0.0",
+      "pinned": "13.0.0"
+    },
+    "platformdirs": {
+      "installed": "4.14.7",
+      "pinned": "4.14.7"
+    },
+    "pluggy": {
+      "installed": "1.7.0",
+      "pinned": "1.7.0"
+    },
+    "protobuf": {
+      "installed": "7.36.2",
+      "pinned": "7.36.2"
+    },
+    "pycparser": {
+      "installed": "3.12",
+      "pinned": "3.12"
+    },
+    "pyparsing": {
+      "installed": "3.3.3",
+      "pinned": "3.3.3"
+    },
+    "pytest": {
+      "installed": "9.2.0",
+      "pinned": "9.2.0"
+    },
+    "python-dateutil": {
+      "installed": "4.0.0",
+      "pinned": "4.0.0"
+    },
+    "pytz": {
+      "installed": "2026.6",
+      "pinned": "2026.6"
+    },
+    "requests": {
+      "installed": "2.34.2",
+      "pinned": "2.34.2"
+    },
+    "ruff": {
+      "installed": "0.17.6",
+      "pinned": "0.17.6"
+    },
+    "scipy": {
+      "installed": "1.18.1",
+      "pinned": "1.18.1"
+    },
+    "soupsieve": {
+      "installed": "4.1.2",
+      "pinned": "4.1.2"
+    },
+    "typing_extensions": {
+      "installed": "4.16.0",
+      "pinned": "4.16.0"
+    },
+    "tzdata": {
+      "installed": "2026.6",
+      "pinned": "2026.6"
+    },
+    "urllib3": {
+      "installed": "2.8.0",
+      "pinned": "2.8.0"
+    },
+    "websockets": {
+      "installed": "17.4",
+      "pinned": "17.4"
+    },
+    "yfinance": {
+      "installed": "1.8.0",
+      "pinned": "1.8.0"
+    }
+  },
+  "python": "3.13.7",
+  "source_changed_since_commit": true
+}
