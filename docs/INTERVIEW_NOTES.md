@@ -59,3 +59,7 @@ Deviations from SPEC, declared on 2026-11-20 before any performance result: (a) 
 3. `make reproduce-check` runs the pipeline twice and compares the sha256 of every result file, which shows that the same seed and the same data give identical outputs on this machine.
 4. `make smoke` runs the same code on synthetic random-walk bars and writes only files whose names start with SYNTHETIC, so the pipeline can be tested in CI without the private data and a synthetic number can never be mistaken for a result.
 5. CI runs ruff, pytest and the synthetic smoke run on Python 3.13, but it cannot run on the real data because the data is private, so it proves the code runs and the tests pass and does not prove that the real results reproduce.
+
+## Deviation from SPEC: how main was created
+
+SPEC section 9 says to merge to main through a pull request after the gate passes. The repo was created on 2026-11-20 with only the phase1 branch, and CI passed on phase1 (GitHub Actions run 44820181167: pip install, ruff, pytest and the synthetic smoke run). main was then created from the phase1 head and pushed directly, and set as the default branch, because main had no base commit to open a pull request against. Phase 2 work will use a phase2 branch and a pull request into main.
