@@ -64,3 +64,9 @@ def fold_table(index, label_ends, splits_cfg):
             row[f"n_train_samples_H{horizon}"] = len(train)
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+def oos_window(n_bars, splits_cfg):
+    """(start, stop) of the whole out-of-sample period: first test block start to last block end."""
+    blocks = block_bounds(n_bars, splits_cfg)
+    return blocks[0][0], blocks[-1][1]

@@ -18,7 +18,8 @@ def simulate(bars, signal, valid, horizon, multiplier_usd):
             not traded: no P&L, no cost, and the previous position is carried over unchanged.
     Decisions are taken every `horizon` bars starting at the first bar of the window, so trades
     never overlap. The position before the window is flat, so the first trade pays its cost.
-    P&L is booked on the exit bar, contracts traded on the entry bar.
+    P&L is booked on the exit bar, contracts traded on the entry bar. Roll sides start at zero,
+    see add_roll_sides.
     """
     n = len(bars)
     signal = np.asarray(signal, dtype=float)
@@ -32,14 +33,32 @@ def simulate(bars, signal, valid, horizon, multiplier_usd):
     trade_pnl = target * (bars["close"].to_numpy()[exit_] - bars["open"].to_numpy()[entry])
     previous = np.concatenate([[0.0], target[:-1]])
 
-    out = pd.DataFrame(0.0, index=bars.index, columns=["gross_pnl_usd", "contracts_traded", "position"])
+    out = pd.DataFrame(0.0, index=bars.index, columns=["gross_pnl_usd", "contracts_traded"])
     out.iloc[exit_, 0] = trade_pnl * multiplier_usd
     out.iloc[entry, 1] = np.abs(target - previous)
-    for step in range(horizon):
-        out.iloc[entry + step, 2] = target
+    out["roll_sides"] = 0.0
+    out["position"] = carried_position(n, entry, target)
     return out
 
 
+def carried_position(n, entry, target):
+    """Position held at each bar: the last traded target, carried forward until the next trade."""
+    position = np.full(n, np.nan)
+    position[entry] = target
+    return pd.Series(position).ffill().fillna(0.0).to_numpy()
+
+
+def add_roll_sides(sim, expiry_bar, sides_per_roll):
+    """Charge a roll at each expiry bar for the position held then: sides_per_roll x |position|."""
+    sim["roll_sides"] = np.abs(sim["position"].to_numpy()) * sides_per_roll * np.asarray(expiry_bar)
+    return sim
+
+
 def net_pnl_usd(sim, per_side_usd):
-    """Gross P&L minus the cost of every position change, per bar."""
-    return sim["gross_pnl_usd"] - trade_cost_usd(sim["contracts_traded"], per_side_usd)
+    """Gross P&L minus the cost of every position change and roll, per bar."""
+    return sim["gross_pnl_usd"] - trade_cost_usd(charged_sides(sim), per_side_usd)
+
+
+def charged_sides(sim):
+    """Sides that pay cost: position changes plus roll sides."""
+    return sim["contracts_traded"] + sim["roll_sides"]

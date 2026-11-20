@@ -27,3 +27,11 @@ Deviations from SPEC, declared on 2026-11-20 before any performance result: (a) 
 3. The backtest enters at the open of bar t+1 and exits at the close of bar t+H, which is the same quantity as the label, so a signal can never earn the return of the bar it was computed on, and a planted perfect-foresight signal earns almost nothing once it is lagged.
 4. Sharpe is computed by summing P&L to daily USD for one contract per CME trading day and annualising with the square root of 252, because scaling an hourly Sharpe directly would inflate it.
 5. The break-even cost is the multiple of my assumed costs at which mean net P&L reaches zero, and it can be solved exactly because net P&L is a straight line in the cost multiplier.
+
+## Item 3: baselines and comparison table
+
+1. Buy-and-hold and one momentum rule (long when the trailing 24-bar return is above zero, short otherwise) are the only two yardsticks, so any later model must beat them after costs on the same bars, the same valid samples and the same cost model.
+2. I report two buy-and-hold lines: a tradable one that only earns the bars a signal could trade, which is the fair comparison, and a passive one that also earns weekend and daily-break moves, which is a reference only.
+3. At each quarterly expiry the buy-and-hold line earns nothing on the roll bar and pays a roll cost, and the momentum rule pays the same roll cost for the position it holds, because the glued Yahoo series has a fake jump there.
+4. Every Sharpe comes with a 95 percent circular block-bootstrap interval on daily P&L, resampling five-day blocks so that short-range dependence between days survives, because a plain shuffle would make the interval too narrow.
+5. Every strategy, horizon, commission run and cost multiplier that is evaluated is written to results/trials.csv by the run itself, which is rebuilt each time, so the trial count for the deflated Sharpe comes from a file and not from memory.

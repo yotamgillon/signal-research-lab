@@ -10,11 +10,14 @@ import json
 import numpy as np
 
 from signal_lab.backtest import simulate
+from signal_lab.baselines import build_baselines
 from signal_lab.config import load_config
 from signal_lab.costs import cost_per_side_usd
-from signal_lab.data import run_data_step
+from signal_lab.data import run_data_step, sha256_of_file
 from signal_lab.labels import add_sample_section, build_labels, sample_report
-from signal_lab.splits import block_bounds, check_embargo, fold_table
+from signal_lab.report import comparison_markdown, evaluate, to_frame
+from signal_lab.splits import check_embargo, fold_table, oos_window
+from signal_lab.trials import TrialLog
 
 RESULTS = ROOT / "results"
 
@@ -25,10 +28,10 @@ def execution_lag_check(bars, cfg):
     A planted signal that knows the direction of bar t at its close must earn almost nothing
     when executed at the open of bar t+1. A same-bar peek would earn the sum of all moves.
     """
-    blocks = block_bounds(len(bars), cfg["splits"])
-    window = bars.iloc[blocks[0][0] : blocks[-1][1]]
+    start, stop = oos_window(len(bars), cfg["splits"])
+    window = bars.iloc[start:stop]
     labels = build_labels(bars, 1, cfg["data"]["bar_minutes"])
-    valid = labels["valid"].to_numpy()[blocks[0][0] : blocks[-1][1]]
+    valid = labels["valid"].to_numpy()[start:stop]
     move = (window["close"] - window["open"]).to_numpy()
     multiplier = cfg["instrument"]["multiplier_usd"]
     sim = simulate(window, np.sign(move), valid, 1, multiplier)
@@ -70,8 +73,18 @@ def main():
         ),
     }
     (RESULTS / "cost_levels.json").write_text(json.dumps(costs, indent=2) + "\n")
-    print(json.dumps(check, indent=2))
-    print(json.dumps(costs, indent=2))
+
+    labels_by_horizon = {h: build_labels(bars, h, cfg["data"]["bar_minutes"]) for h in horizons}
+    window = oos_window(len(bars), cfg["splits"])
+    sims = build_baselines(bars, cfg, window, labels_by_horizon)
+    trials = TrialLog()
+    index = bars.index[window[0] : window[1]]
+    rows, differences = evaluate(sims, index, cfg, trials, sha256_of_file(cfg["data"]["path"]))
+    to_frame(rows).to_csv(RESULTS / "comparison.csv", index=False)
+    (RESULTS / "comparison.md").write_text(comparison_markdown(rows, differences, index, cfg))
+    trials.write(RESULTS / "trials.csv")
+    print((RESULTS / "comparison.md").read_text())
+    print("trials logged:", len(trials))
 
 
 if __name__ == "__main__":
