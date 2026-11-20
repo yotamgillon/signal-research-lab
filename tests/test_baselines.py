@@ -68,7 +68,7 @@ def test_momentum_signal_ignores_the_future():
     close = 1000 + np.cumsum(rng.normal(size=300))
     index = pd.date_range("2025-01-06 09:00", periods=300, freq="h", tz="America/New_York")
     full = add_returns(pd.DataFrame({"close": close}, index=index),
-                       {"expiry_months": [3], "expiry_weekday": 4, "expiry_bar_hour_ny": 16})
+                       {"expiry_months": [3], "expiry_weekday": 4, "expiry_bar_hour_ny": 16, "calendar_lookahead_days": 7})
     for cut in (50, 120, 299):
         truncated = momentum_signal(full.iloc[:cut], 24)
         assert np.array_equal(truncated, momentum_signal(full, 24)[:cut], equal_nan=True)

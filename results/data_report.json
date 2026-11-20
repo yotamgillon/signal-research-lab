@@ -204,7 +204,7 @@
         "bar_used": "2026-06-18 16:00:00-04:00"
       }
     ],
-    "note": "If a third Friday has no bars (holiday), the 16:00 New York bar of the previous trading day is treated as the expiry bar. This is an assumption, not a verified CME fact. It was declared on 2026-11-20, before any performance result was computed."
+    "note": "If a third Friday is a US federal holiday or Good Friday, the 16:00 New York bar of the previous trading day is treated as the expiry bar. This is an assumption, not a verified CME fact. It was declared on 2026-11-20, before any performance result was computed."
   },
   "regular_hours_definition": "bar start hour 9 to 15 inclusive, New York (the 09:00 bar contains the 09:30 open)",
   "zero_volume_bars": 493,

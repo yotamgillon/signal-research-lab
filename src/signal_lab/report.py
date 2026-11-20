@@ -26,8 +26,9 @@ def log_trials(trials, name, horizon, run, commission, per_side, summary, cfg, w
     for multiplier in cfg["costs"]["cost_multipliers"]:
         trials.add(
             strategy=name,
-            horizon_bars=horizon,
-            momentum_lookback=cfg["baseline"]["momentum_lookback_bars"] if name == "momentum" else "",
+            horizon_bars=horizon if horizon is not None else "n/a",
+            momentum_lookback=(cfg["baseline"]["momentum_lookback_bars"]
+                               if name == "momentum" else "n/a"),
             commission_run=run,
             commission_per_side_usd=commission,
             cost_multiplier=multiplier,
@@ -73,12 +74,13 @@ def to_frame(rows):
     flat = []
     for row in rows:
         row = {k: v for k, v in row.items() if k != "net_daily_pnl"}
+        row["horizon_bars"] = row["horizon_bars"] if row["horizon_bars"] is not None else "n/a"
         for key in ("gross_sharpe_ci", "net_sharpe_ci"):
             row[key + "_low"], row[key + "_high"] = row.pop(key)
         for key, value in row.pop("net_sharpe_by_cost_multiplier").items():
             row[f"net_sharpe_at_{key}_costs"] = value
         flat.append(row)
-    return pd.DataFrame(flat)
+    return pd.DataFrame(flat, dtype=object)
 
 
 def _fmt(value, interval=None):

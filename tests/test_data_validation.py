@@ -185,3 +185,12 @@ def test_expiry_holiday_fallback_uses_previous_trading_day():
     assert found["used_fallback"].tolist() == [True]
     assert str(found["bar"].iloc[0]) == "2026-06-18 16:00:00-04:00"
     assert expiry_bar_mask(index, CFG["cleaning"]).tolist() == [False, True, False]
+
+
+def test_ordering_check_flags_unsorted_and_duplicate_timestamps():
+    from signal_lab.leakage import ordering_violations
+
+    good = make_bars(hourly("2025-01-06 09:00", 5))
+    assert ordering_violations(good.index) == []
+    assert ordering_violations(good.iloc[[0, 2, 1, 3, 4]].index) == ["timestamps are not sorted"]
+    assert ordering_violations(good.iloc[[0, 1, 1, 2, 3]].index) == ["duplicate timestamps"]

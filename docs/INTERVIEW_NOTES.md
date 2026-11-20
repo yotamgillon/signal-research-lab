@@ -35,3 +35,11 @@ Deviations from SPEC, declared on 2026-11-20 before any performance result: (a) 
 3. At each quarterly expiry the buy-and-hold line earns nothing on the roll bar and pays a roll cost, and the momentum rule pays the same roll cost for the position it holds, because the glued Yahoo series has a fake jump there.
 4. Every Sharpe comes with a 95 percent circular block-bootstrap interval on daily P&L, resampling five-day blocks so that short-range dependence between days survives, because a plain shuffle would make the interval too narrow.
 5. Every strategy, horizon, commission run and cost multiplier that is evaluated is written to results/trials.csv by the run itself, which is rebuilt each time, so the trial count for the deflated Sharpe comes from a file and not from memory.
+
+## Item 4: permutation test and automated leakage tests
+
+1. The permutation test asks how often a net Sharpe as high as the real one would appear if the signal carried no information about the future, and the p-value is (1 + the number of permuted Sharpes at least as large) divided by (N + 1), so with 200 permutations it can never be below 1/201.
+2. For the momentum rule there is nothing to train, so I shift the signal circularly against the returns, which keeps the signal's own autocorrelation and trade count but breaks its link to the market; for a trained model I would instead shuffle the training labels inside each fold and retrain, so the test only ever destroys the relationship the model is meant to learn.
+3. The truncation test cuts the data at many points and checks that every feature value before the cut is identical to the full-data value, which catches centred windows, negative shifts, back-fill and full-sample normalisation, and it caught a real calendar-lookahead bug in my own expiry-bar rule.
+4. The canary is a feature built from the next bar's return, and it is needed because a leakage test that passes everything is worthless: the truncation test must fail on it and a naive backtest of it must show an absurd Sharpe.
+5. The label-boundary and fit-on-train-only tests check, fold by fold, that no training label window reaches into the test block and that the model never saw a bar at or after the start of its test block.

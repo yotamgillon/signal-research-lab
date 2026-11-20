@@ -114,3 +114,12 @@ def test_fold_table_columns_and_counts():
     assert table["n_test_bars"].tolist() == [10] * 7
     assert table["n_train_samples_H1"].iloc[0] == 28   # bars 0..27 (embargo 2)
     assert table["n_train_samples_H2"].iloc[0] == 28
+
+
+def test_label_boundary_check_passes_for_every_fold_and_catches_a_naive_split():
+    from signal_lab.leakage import label_boundary_violations
+
+    label_end = label_end_for(2)
+    assert label_boundary_violations(label_end, all_folds(label_end, cfg())) == []
+    naive = [(np.arange(0, test[0]), test) for _, test in all_folds(label_end, cfg())]
+    assert len(label_boundary_violations(label_end, naive)) == len(naive)

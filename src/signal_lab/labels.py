@@ -61,7 +61,9 @@ def build_labels(bars, horizon, bar_minutes):
 
     labels = pd.DataFrame(index=bars.index)
     labels["y"] = np.where(valid, np.log(close_end / open_next), np.nan)
-    labels["label_end"] = np.where(has_future, end, np.nan)  # bar position of the exit
+    # Bar position where the label window ends. NaN for excluded samples, so the splitter
+    # never puts them in a training set.
+    labels["label_end"] = np.where(valid, end, np.nan)
     labels["no_future"] = ~has_future
     labels["gap"] = gap
     labels["missing_return"] = missing_return & has_future

@@ -69,23 +69,33 @@ def third_friday_dates(first_day, last_day, cleaning):
     return days[is_expiry_day]
 
 
-def find_expiry_bars(index, cleaning):
-    """One row per third Friday inside the data: the bar to treat as missing.
+def effective_expiry_date(friday, holidays):
+    """The third Friday, or the previous weekday that is not a holiday if it is a holiday."""
+    day = friday
+    while day in holidays or day.day_of_week >= 5:
+        day -= pd.Timedelta(days=1)
+    return day
 
-    Normal case: the 16:00 NY bar of that Friday. If the Friday has no bars (a holiday), the
-    16:00 bar of the previous trading day is used. That fallback is an assumption, declared on
-    2026-11-20 before any performance result, and not a verified CME fact.
+
+def find_expiry_bars(index, cleaning):
+    """One row per third Friday near the data: the bar to treat as missing.
+
+    Normal case: the 16:00 NY bar of that Friday. If the Friday is a US federal holiday or
+    Good Friday (June 2026, Juneteenth), the 16:00 bar of the previous trading day is used.
+    The fallback depends only on the calendar, never on which bars exist, so the flags of
+    earlier bars do not change when later data is cut off. It is an assumption, not a verified
+    CME fact, declared on 2026-11-20 before any performance result.
     """
     local_dates = index.normalize().tz_localize(None)
+    reach = local_dates[-1] + pd.Timedelta(days=cleaning["calendar_lookahead_days"])
+    holidays = holiday_dates(local_dates.union(pd.DatetimeIndex([reach])))
     at_hour = index.hour == cleaning["expiry_bar_hour_ny"]
     rows = []
-    for friday in third_friday_dates(local_dates[0], local_dates[-1], cleaning):
-        same_day = index[(local_dates == friday) & at_hour]
-        if len(same_day) > 0:
-            rows.append({"third_friday": friday, "bar": same_day[0], "used_fallback": False})
-            continue
-        earlier = index[(local_dates < friday) & at_hour]
-        rows.append({"third_friday": friday, "bar": earlier[-1], "used_fallback": True})
+    for friday in third_friday_dates(local_dates[0], reach, cleaning):
+        day = effective_expiry_date(friday, holidays)
+        bar = index[(local_dates == day) & at_hour]
+        if len(bar) > 0:
+            rows.append({"third_friday": friday, "bar": bar[0], "used_fallback": day != friday})
     return pd.DataFrame(rows, columns=["third_friday", "bar", "used_fallback"])
 
 
@@ -206,8 +216,8 @@ def expiry_rule_note(index, cleaning):
             for r in used.itertuples()
         ],
         "note": (
-            "If a third Friday has no bars (holiday), the 16:00 New York bar of the previous "
-            "trading day is treated as the expiry bar. This is an assumption, not a verified "
+            "If a third Friday is a US federal holiday or Good Friday, the 16:00 New York bar of "
+            "the previous trading day is treated as the expiry bar. This is an assumption, not a verified "
             "CME fact. It was declared on " + cleaning["fallback_declared_on"]
             + ", before any performance result was computed."
         ),

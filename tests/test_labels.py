@@ -72,3 +72,11 @@ def test_window_has():
     assert window_has(flag, 1, 2).tolist() == [True, False, False, False, False]
     # window t-1 .. t: bar 0 runs off the start, bars 1 and 2 contain the flagged bar 1
     assert window_has(flag, -1, 0).tolist() == [False, True, True, False, False]
+
+
+def test_excluded_samples_have_no_label_end_so_they_are_never_trained_on():
+    stamps = hourly(3, "2025-01-10 14:00") + hourly(3, "2025-01-12 18:00")
+    bars = make_bars(stamps, opens=[1] * 6, closes=[1] * 6)
+    labels = build_labels(bars, 1, 60)
+    assert labels["label_end"].isna().tolist() == [False, False, True, False, False, True]
+    assert (labels["label_end"].isna() == ~labels["valid"]).all()

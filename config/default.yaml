@@ -31,10 +31,12 @@ cleaning:                              # pre-declared expiry-bar rule (SPEC sect
   expiry_months: [3, 6, 9, 12]
   expiry_weekday: 4                    # Friday (Monday = 0); the third one is day 15 to 21
   expiry_bar_hour_ny: 16               # the return of this bar is treated as missing
-  # Holiday fallback: if the third Friday has no bars (June 2026, Juneteenth), the 16:00 bar of
-  # the previous trading day is used. ASSUMPTION, not a verified CME fact. Declared 2026-11-20,
+  # Holiday fallback: if the third Friday is a US federal holiday or Good Friday (June 2026,
+  # Juneteenth), the 16:00 bar of the previous trading day is used. ASSUMPTION, not a verified CME fact. Declared 2026-11-20,
   # before any performance result was computed.
   holiday_fallback: previous_trading_day
+  calendar_lookahead_days: 7           # calendar dates this far past the last bar are considered,
+                                       # so the flags of earlier bars never depend on later data
   fallback_declared_on: "2026-11-20"
 
 horizon:
@@ -89,3 +91,4 @@ permutation:
 
 tests:
   noise_seeds: [1, 2, 3, 4, 5]
+  truncation_cut_points: 20            # random cut points of the truncation test

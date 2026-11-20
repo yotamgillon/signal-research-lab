@@ -1,0 +1,18 @@
+{
+  "note": "leakage checks on the real bars, not a performance result",
+  "cut_points": 47,
+  "clean_features_truncation_violations": 0,
+  "canary_truncation_cuts_with_violation": 47,
+  "canary_first_violation": {
+    "cut_bar": 1308,
+    "columns": [
+      "canary_future_return"
+    ],
+    "rows_differing": 1
+  },
+  "label_boundary_violating_folds": {
+    "H=1": 0,
+    "H=2": 0
+  },
+  "ordering_problems": []
+}

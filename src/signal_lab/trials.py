@@ -15,7 +15,8 @@ class TrialLog:
         self.rows.append(row)
 
     def write(self, path):
-        pd.DataFrame(self.rows).to_csv(path, index_label="trial_id")
+        table = pd.DataFrame(self.rows, dtype=object).fillna("n/a")  # object keeps ints as ints
+        table.to_csv(path, index_label="trial_id")
 
     def __len__(self):
         return len(self.rows)
