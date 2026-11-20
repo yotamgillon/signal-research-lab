@@ -1,0 +1,5 @@
+{
+  "assumption_note": "all cost values are assumptions, see config/default.yaml",
+  "per_side_usd_main": 7.5,
+  "per_side_usd_conservative": 10.0
+}

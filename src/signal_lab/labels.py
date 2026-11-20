@@ -75,7 +75,6 @@ def feature_window_bars(features_cfg):
         max(features_cfg["return_lags"]) + 1,
         features_cfg["vol_window"] + 1,
         features_cfg["ma_window"],
-        features_cfg["volume_z_window"],
         features_cfg["range_window"],
     )
 
@@ -120,6 +119,12 @@ def sample_report(bars, cfg):
     bar_minutes = cfg["data"]["bar_minutes"]
     window = feature_window_bars(cfg["features"])
     report = {
+        "rule_rows_note": (
+            "The rule rows below overlap: a sample removed by two rules appears in both rows, "
+            "so the rows do not sum to the removed total. samples_valid_after_label_rules = "
+            "samples_total minus removed_by_any_label_rule, where a sample removed by several "
+            "rules counts once. Feature-window rows are separate and are not part of that count."
+        ),
         "feature_window_bars": window,
         "feature_window_note": (
             "samples with fewer than this many bars of history are warm-up and cannot have "
@@ -128,10 +133,16 @@ def sample_report(bars, cfg):
     }
     for horizon in (cfg["horizon"]["main_bars"], cfg["horizon"]["secondary_bars"]):
         labels = build_labels(bars, horizon, bar_minutes)
+        rule_rows = [labels["no_future"], labels["gap"], labels["missing_return"]]
+        sum_of_rows = int(sum(row.sum() for row in rule_rows))
+        removed_any = int((~labels["valid"]).sum())
         report[f"H={horizon}"] = {
             "samples_total": len(bars),
             "removed_label_runs_past_end_of_data": int(labels["no_future"].sum()),
             "removed_by_gap_rule": int(labels["gap"].sum()),
+            "removed_by_any_label_rule": removed_any,
+            "sum_of_the_three_rule_rows": sum_of_rows,
+            "counted_in_more_than_one_rule_row": sum_of_rows - removed_any,
             "gap_rule_by_type": gap_rule_by_type(bars, horizon, bar_minutes),
             "removed_by_expiry_missing_return_in_label_window": int(labels["missing_return"].sum()),
             "samples_valid_after_label_rules": int(labels["valid"].sum()),

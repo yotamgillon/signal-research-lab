@@ -17,3 +17,13 @@ Five plain sentences per item, written by Claude Code. Rewrite each one in your 
 3. The splitter trains on an expanding window and tests on the next fixed block of 500 bars, then steps forward one block, so the out-of-sample periods join into one continuous stretch and each test block is used once.
 4. Purge removes every training sample whose label window reaches into the test block, and the embargo leaves a gap of at least H bars before the test block, which stops overlapping labels from leaking test information into training.
 5. A lookback feature that reaches back across the train and test boundary is not a leak, because it reads only the past, which is information a live trader would have had at that moment.
+
+Deviations from SPEC, declared on 2026-11-20 before any performance result: (a) the volume z-score feature is dropped from Phase 1 because 471 of 493 zero-volume bars are the 18:00 New York bar, and volume handling is decided in Phase 2 with a documented rule; (b) the last test block may be shorter than 500 bars so the final bars of the file are used.
+
+## Item 2: cost model and net-of-cost metrics
+
+1. Every position change pays commission plus slippage plus half the bid-ask spread per contract, and a flip from long to short trades two contracts so it pays two sides, while a position that does not change pays nothing.
+2. The half-spread and slippage are fixed tick counts from the config because bar data has no quotes, so they are assumptions that I test at 0x, 1x, 2x and 3x rather than facts.
+3. The backtest enters at the open of bar t+1 and exits at the close of bar t+H, which is the same quantity as the label, so a signal can never earn the return of the bar it was computed on, and a planted perfect-foresight signal earns almost nothing once it is lagged.
+4. Sharpe is computed by summing P&L to daily USD for one contract per CME trading day and annualising with the square root of 252, because scaling an hourly Sharpe directly would inflate it.
+5. The break-even cost is the multiple of my assumed costs at which mean net P&L reaches zero, and it can be solved exactly because net P&L is a straight line in the cost multiplier.

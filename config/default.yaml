@@ -3,6 +3,16 @@
 
 seed: 42
 
+# Differences from SPEC.md, each declared before any performance result. Copied into the data report.
+deviations_from_spec:
+  - >-
+    volume_z is dropped from the Phase 1 feature set (SPEC section 2 lists it). 471 of 493
+    zero-volume bars are the 18:00 New York bar, so a rolling volume z-score would be distorted.
+    Volume handling is decided in Phase 2 with a documented rule. Declared 2026-11-20.
+  - >-
+    keep_partial_last_block is true, so the last test block is shorter than test_bars (SPEC
+    says fixed-length blocks). This uses the last bars of the file. Declared 2026-11-20.
+
 data:
   path: data/NQ_1h.csv                 # local snapshot, never re-downloaded by make run
   timezone: America/New_York           # timezone of the bars
@@ -38,7 +48,8 @@ features:                              # declared now, used from item 4
   return_lags: [1, 5, 20]
   vol_window: 20
   ma_window: 50
-  volume_z_window: 50
+  # volume_z (SPEC section 2) is dropped from Phase 1: 471 of 493 zero-volume bars are the
+  # 18:00 NY bar. Volume handling is decided in Phase 2 with a documented rule.
   range_window: 20
 
 splits:
@@ -47,7 +58,8 @@ splits:
   test_bars: 500                       # about 5 weeks per fold
   embargo_bars: 2                      # at least the largest horizon
   rolling_train_bars: 5000             # used only if scheme is rolling
-  keep_partial_last_block: false       # false: only full test blocks, leftover bars unused
+  keep_partial_last_block: true        # last test block may be shorter. Declared 2026-11-20,
+                                       # before any performance result. Uses all bars.
 
 instrument:
   name: NQ

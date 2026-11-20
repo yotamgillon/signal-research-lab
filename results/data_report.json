@@ -1,4 +1,8 @@
 {
+  "deviations_from_spec": [
+    "volume_z is dropped from the Phase 1 feature set (SPEC section 2 lists it). 471 of 493 zero-volume bars are the 18:00 New York bar, so a rolling volume z-score would be distorted. Volume handling is decided in Phase 2 with a documented rule. Declared 2026-11-20.",
+    "keep_partial_last_block is true, so the last test block is shorter than test_bars (SPEC says fixed-length blocks). This uses the last bars of the file. Declared 2026-11-20."
+  ],
   "file": "data/NQ_1h.csv",
   "sha256": "53c87c8963307a28a2b51627ad8e1d31559a4524577db2eefa9a924ae842519b",
   "rows_in_file": 13736,
@@ -221,12 +225,16 @@
   },
   "overnight_definition": "bar start hour (New York) outside 9 to 15 inclusive",
   "samples": {
+    "rule_rows_note": "The rule rows below overlap: a sample removed by two rules appears in both rows, so the rows do not sum to the removed total. samples_valid_after_label_rules = samples_total minus removed_by_any_label_rule, where a sample removed by several rules counts once. Feature-window rows are separate and are not part of that count.",
     "feature_window_bars": 50,
     "feature_window_note": "samples with fewer than this many bars of history are warm-up and cannot have features; the feature rules below are counted among label-valid samples",
     "H=1": {
       "samples_total": 13735,
       "removed_label_runs_past_end_of_data": 1,
       "removed_by_gap_rule": 618,
+      "removed_by_any_label_rule": 624,
+      "sum_of_the_three_rule_rows": 628,
+      "counted_in_more_than_one_rule_row": 4,
       "gap_rule_by_type": {
         "daily_break": 468,
         "weekend": 108,
@@ -248,6 +256,9 @@
       "samples_total": 13735,
       "removed_label_runs_past_end_of_data": 2,
       "removed_by_gap_rule": 1231,
+      "removed_by_any_label_rule": 1238,
+      "sum_of_the_three_rule_rows": 1251,
+      "counted_in_more_than_one_rule_row": 13,
       "gap_rule_by_type": {
         "daily_break": 936,
         "weekend": 216,

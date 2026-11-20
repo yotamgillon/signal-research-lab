@@ -220,6 +220,7 @@ def build_data_report(path, cfg, raw_bars, bars):
     gaps = classify_gaps(bars.index, data_cfg["bar_minutes"])
     other = gaps[gaps["kind"] == "other"]
     return {
+        "deviations_from_spec": [" ".join(text.split()) for text in cfg["deviations_from_spec"]],
         "file": str(path),
         "sha256": sha256_of_file(path),
         "rows_in_file": len(raw_bars),
